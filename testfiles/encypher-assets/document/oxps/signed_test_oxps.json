@@ -1,0 +1,104 @@
+{
+  "active_manifest": "urn:c2pa:d022006b-77cb-4444-ba96-b269aaf06d7b",
+  "manifests": {
+    "urn:c2pa:d022006b-77cb-4444-ba96-b269aaf06d7b": {
+      "claim_generator_info": [
+        {
+          "name": "Encypher Enterprise API/1.0",
+          "version": "2.0",
+          "specVersion": "2.2"
+        }
+      ],
+      "title": "C2PA Conformance Test -- OXPS",
+      "instance_id": "xmp:iid:814399d9-ffe3-4909-ba38-b42bc5e12830",
+      "assertions": [
+        {
+          "label": "c2pa.actions.v2",
+          "data": {
+            "actions": [
+              {
+                "action": "c2pa.created",
+                "when": "2026-04-29T22:57:17Z",
+                "softwareAgent": {
+                  "name": "Encypher Enterprise API",
+                  "version": "2.0"
+                },
+                "digitalSourceType": "http://cv.iptc.org/newscodes/digitalsourcetype/algorithmicMedia"
+              }
+            ]
+          },
+          "created": true
+        },
+        {
+          "label": "c2pa.hash.collection.data",
+          "data": {
+            "uris": [
+              {
+                "uri": "[Content_Types].xml",
+                "hash": "beb966552698391ad4b1e8a3f1928e35540fcbd4166e598cafdc73a928bf1a89"
+              },
+              {
+                "uri": "_rels/.rels",
+                "hash": "dc3c22f55df32bc7e056ab759e001b3cf5cb1058849d2e8e53c990a16be6d2e6"
+              },
+              {
+                "uri": "FixedDocumentSequence.fdseq",
+                "hash": "4998959c2d4e582fff1a1b5b9ae88d13219ce3f53ea542b8bcbd626766368712"
+              }
+            ],
+            "alg": "sha256",
+            "zip_central_directory_hash": "1f865f680e00c015fe9aeebc7f76cc54ea014140aad3575e64ec36c725275d4e"
+          },
+          "created": true
+        },
+        {
+          "label": "com.encypher.provenance",
+          "data": {
+            "organization_id": "encypher-conformance",
+            "document_id": "conformance-oxps",
+            "document_asset_id": "336de47f-b646-4ada-8ca8-c1e100fc0b6c",
+            "signed_at": "2026-04-29T22:57:17Z"
+          },
+          "created": true
+        }
+      ],
+      "label": "urn:c2pa:d022006b-77cb-4444-ba96-b269aaf06d7b",
+      "claim_version": 2,
+      "signature_info": {
+        "alg": "Es256",
+        "issuer": "Encypher Corporation",
+        "common_name": "Encypher Conformance Test Cert",
+        "cert_serial_number": "147181982485018836523483496355878785433524796037",
+        "time": "2026-04-29T22:57:17+00:00"
+      }
+    }
+  },
+  "validation_results": {
+    "activeManifest": {
+      "success": [
+        {
+          "code": "claimSignature.validated",
+          "url": "self#jumbf=/c2pa/urn:c2pa:d022006b-77cb-4444-ba96-b269aaf06d7b/c2pa.signature",
+          "explanation": "COSE_Sign1 signature valid"
+        },
+        {
+          "code": "timeStamp.validated",
+          "url": "self#jumbf=/c2pa/urn:c2pa:d022006b-77cb-4444-ba96-b269aaf06d7b/c2pa.signature",
+          "explanation": "timestamp message digest matched"
+        },
+        {
+          "code": "assertion.dataHash.match",
+          "url": "self#jumbf=/c2pa/urn:c2pa:d022006b-77cb-4444-ba96-b269aaf06d7b/c2pa.signature",
+          "explanation": "data hash valid (c2pa.hash.collection.data)"
+        }
+      ],
+      "informational": [
+        {
+          "code": "signingCredential.untrusted",
+          "url": "self#jumbf=/c2pa/urn:c2pa:d022006b-77cb-4444-ba96-b269aaf06d7b/c2pa.signature",
+          "explanation": "signing credential untrusted"
+        }
+      ]
+    }
+  }
+}

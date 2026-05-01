@@ -1,0 +1,122 @@
+{
+  "@context": {
+    "@vocab": "https://contentcredentials.org/crjson",
+    "extras": "https://contentcredentials.org/crjson/extras"
+  },
+  "manifests": [
+    {
+      "label": "urn:c2pa:d3e0ef7e-abde-44a2-a71d-e03c63bf729c",
+      "assertions": {
+        "c2pa.actions.v2": {
+          "actions": [
+            {
+              "action": "c2pa.created",
+              "when": "2026-04-29T22:57:14Z",
+              "softwareAgent": {
+                "name": "Encypher Enterprise API",
+                "version": "2.0"
+              },
+              "digitalSourceType": "http://cv.iptc.org/newscodes/digitalsourcetype/algorithmicMedia"
+            }
+          ]
+        },
+        "c2pa.hash.data": {
+          "exclusions": [
+            {
+              "start": 50,
+              "length": 65536
+            }
+          ],
+          "alg": "sha256",
+          "hash": "7f5d061c6983dca2bac3a5ffd84af85503fb82b11e5bd4dd9cca17085c24b505",
+          "pad": ""
+        },
+        "com.encypher.provenance": {
+          "organization_id": "encypher-conformance",
+          "document_id": "conformance-flac",
+          "document_asset_id": "430afe25-ed74-4441-813e-929cc188dbf5",
+          "signed_at": "2026-04-29T22:57:14Z"
+        }
+      },
+      "claim.v2": {
+        "instanceID": "xmp:iid:4f3f0703-527c-43cf-8927-88e2807517d0",
+        "signature": "self#jumbf=/c2pa/urn:c2pa:d3e0ef7e-abde-44a2-a71d-e03c63bf729c/c2pa.signature",
+        "claim_generator_info": {
+          "name": "Encypher Enterprise API",
+          "version": "2.0",
+          "specVersion": "2.2"
+        },
+        "alg": "sha256",
+        "dc:title": "C2PA Conformance Test -- FLAC",
+        "created_assertions": [
+          {
+            "url": "self#jumbf=c2pa.assertions/c2pa.actions.v2",
+            "hash": ""
+          },
+          {
+            "url": "self#jumbf=c2pa.assertions/c2pa.hash.data",
+            "hash": ""
+          },
+          {
+            "url": "self#jumbf=c2pa.assertions/com.encypher.provenance",
+            "hash": ""
+          }
+        ],
+        "gathered_assertions": []
+      },
+      "signature": {
+        "algorithm": "es256",
+        "certificateInfo": {
+          "serialNumber": "19c7de4c62898b7febbd6591661251f44fb47a85",
+          "issuer": {
+            "O": "Encypher Corporation",
+            "CN": "Encypher Corporation Test Intermediate CA"
+          },
+          "subject": {
+            "O": "Encypher Corporation",
+            "CN": "Encypher Conformance Test Cert"
+          },
+          "validity": {
+            "notBefore": "2026-04-29T22:57:14+00:00",
+            "notAfter": ""
+          }
+        },
+        "timeStampInfo": {
+          "timestamp": "2026-04-29T22:57:14+00:00"
+        }
+      },
+      "validationResults": {
+        "success": [
+          {
+            "code": "claimSignature.validated",
+            "url": "self#jumbf=/c2pa/urn:c2pa:d3e0ef7e-abde-44a2-a71d-e03c63bf729c/c2pa.signature",
+            "explanation": "COSE_Sign1 signature valid"
+          },
+          {
+            "code": "timeStamp.validated",
+            "url": "self#jumbf=/c2pa/urn:c2pa:d3e0ef7e-abde-44a2-a71d-e03c63bf729c/c2pa.signature",
+            "explanation": "timestamp message digest matched"
+          },
+          {
+            "code": "assertion.dataHash.match",
+            "url": "self#jumbf=/c2pa/urn:c2pa:d3e0ef7e-abde-44a2-a71d-e03c63bf729c/c2pa.signature",
+            "explanation": "data hash valid (c2pa.hash.data)"
+          }
+        ],
+        "informational": [
+          {
+            "code": "signingCredential.untrusted",
+            "url": "self#jumbf=/c2pa/urn:c2pa:d3e0ef7e-abde-44a2-a71d-e03c63bf729c/c2pa.signature",
+            "explanation": "signing credential untrusted"
+          }
+        ],
+        "validationTime": "2026-05-01T19:05:45.240291+00:00"
+      }
+    }
+  ],
+  "jsonGenerator": {
+    "name": "encypher-reader-to-crjson-converter",
+    "version": "1.0.0",
+    "date": "2026-05-01T19:05:45.240296+00:00"
+  }
+}

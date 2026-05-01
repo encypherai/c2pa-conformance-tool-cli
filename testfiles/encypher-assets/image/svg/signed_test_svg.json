@@ -1,0 +1,118 @@
+{
+  "active_manifest": "urn:c2pa:0b19e635-c926-4d63-9079-91bf6c90d72f",
+  "manifests": {
+    "urn:c2pa:0b19e635-c926-4d63-9079-91bf6c90d72f": {
+      "claim_generator_info": [
+        {
+          "name": "Encypher",
+          "version": "1.0",
+          "specVersion": "2.2",
+          "org.contentauth.c2pa_rs": "0.78.4"
+        }
+      ],
+      "title": "C2PA Conformance Test -- SVG",
+      "instance_id": "xmp:iid:505c9bc6-66d3-421f-a926-bcfdc5c6ae1b",
+      "assertions": [
+        {
+          "label": "c2pa.actions.v2",
+          "data": {
+            "actions": [
+              {
+                "action": "c2pa.created",
+                "when": "2026-04-29T22:57:07Z",
+                "softwareAgent": {
+                  "name": "Encypher Enterprise API",
+                  "version": "1.0"
+                },
+                "digitalSourceType": "http://cv.iptc.org/newscodes/digitalsourcetype/algorithmicMedia"
+              }
+            ]
+          },
+          "created": true
+        },
+        {
+          "label": "com.encypher.provenance",
+          "data": {
+            "document_id": "conformance-svg",
+            "image_id": "2fa218ae-7fb3-4cbc-9d96-3daef20b8d54",
+            "organization_id": "encypher-conformance",
+            "signed_at": "2026-04-29T22:57:07Z"
+          },
+          "created": true
+        }
+      ],
+      "signature_info": {
+        "alg": "Es256",
+        "issuer": "Encypher Corporation",
+        "common_name": "Encypher Conformance Test Cert",
+        "cert_serial_number": "147181982485018836523483496355878785433524796037",
+        "time": "2026-04-29T22:57:07+00:00"
+      },
+      "label": "urn:c2pa:0b19e635-c926-4d63-9079-91bf6c90d72f",
+      "claim_version": 2
+    }
+  },
+  "validation_status": [
+    {
+      "code": "signingCredential.untrusted",
+      "url": "self#jumbf=/c2pa/urn:c2pa:0b19e635-c926-4d63-9079-91bf6c90d72f/c2pa.signature",
+      "explanation": "signing certificate untrusted"
+    }
+  ],
+  "validation_results": {
+    "activeManifest": {
+      "success": [
+        {
+          "code": "timeStamp.validated",
+          "url": "self#jumbf=/c2pa/urn:c2pa:0b19e635-c926-4d63-9079-91bf6c90d72f/c2pa.signature",
+          "explanation": "timestamp message digest matched: SSL.com Timestamping Unit 2025 E1"
+        },
+        {
+          "code": "claimSignature.insideValidity",
+          "url": "self#jumbf=/c2pa/urn:c2pa:0b19e635-c926-4d63-9079-91bf6c90d72f/c2pa.signature",
+          "explanation": "claim signature valid"
+        },
+        {
+          "code": "claimSignature.validated",
+          "url": "self#jumbf=/c2pa/urn:c2pa:0b19e635-c926-4d63-9079-91bf6c90d72f/c2pa.signature",
+          "explanation": "claim signature valid"
+        },
+        {
+          "code": "assertion.hashedURI.match",
+          "url": "self#jumbf=/c2pa/urn:c2pa:0b19e635-c926-4d63-9079-91bf6c90d72f/c2pa.assertions/c2pa.actions.v2",
+          "explanation": "hashed uri matched: self#jumbf=c2pa.assertions/c2pa.actions.v2"
+        },
+        {
+          "code": "assertion.hashedURI.match",
+          "url": "self#jumbf=/c2pa/urn:c2pa:0b19e635-c926-4d63-9079-91bf6c90d72f/c2pa.assertions/com.encypher.provenance",
+          "explanation": "hashed uri matched: self#jumbf=c2pa.assertions/com.encypher.provenance"
+        },
+        {
+          "code": "assertion.hashedURI.match",
+          "url": "self#jumbf=/c2pa/urn:c2pa:0b19e635-c926-4d63-9079-91bf6c90d72f/c2pa.assertions/c2pa.hash.data",
+          "explanation": "hashed uri matched: self#jumbf=c2pa.assertions/c2pa.hash.data"
+        },
+        {
+          "code": "assertion.dataHash.match",
+          "url": "self#jumbf=/c2pa/urn:c2pa:0b19e635-c926-4d63-9079-91bf6c90d72f/c2pa.assertions/c2pa.hash.data",
+          "explanation": "data hash valid"
+        }
+      ],
+      "informational": [
+        {
+          "code": "timeStamp.untrusted",
+          "url": "self#jumbf=/c2pa/urn:c2pa:0b19e635-c926-4d63-9079-91bf6c90d72f/c2pa.signature",
+          "explanation": "timestamp cert untrusted: SSL.com Timestamping Unit 2025 E1"
+        }
+      ],
+      "failure": [
+        {
+          "code": "signingCredential.untrusted",
+          "url": "self#jumbf=/c2pa/urn:c2pa:0b19e635-c926-4d63-9079-91bf6c90d72f/c2pa.signature",
+          "explanation": "signing certificate untrusted"
+        }
+      ]
+    }
+  },
+  "validation_state": "Valid"
+}

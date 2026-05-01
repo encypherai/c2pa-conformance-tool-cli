@@ -1,0 +1,122 @@
+{
+  "@context": {
+    "@vocab": "https://contentcredentials.org/crjson",
+    "extras": "https://contentcredentials.org/crjson/extras"
+  },
+  "manifests": [
+    {
+      "label": "urn:c2pa:6ce833fe-191a-4c45-bd2f-b2e16424a252",
+      "assertions": {
+        "c2pa.actions.v2": {
+          "actions": [
+            {
+              "action": "c2pa.created",
+              "when": "2026-04-29T22:57:08Z",
+              "softwareAgent": {
+                "name": "Encypher Enterprise API",
+                "version": "2.0"
+              },
+              "digitalSourceType": "http://cv.iptc.org/newscodes/digitalsourcetype/algorithmicMedia"
+            }
+          ]
+        },
+        "c2pa.hash.data": {
+          "exclusions": [
+            {
+              "start": 40,
+              "length": 65536
+            }
+          ],
+          "alg": "sha256",
+          "hash": "729e61869207fddbb00ea868a60117c23d5adb45bd8e7f010bd5ca5275c61b68",
+          "pad": ""
+        },
+        "com.encypher.provenance": {
+          "organization_id": "encypher-conformance",
+          "document_id": "conformance-jxl",
+          "document_asset_id": "39f7df96-f04a-4865-905b-fc1775421d77",
+          "signed_at": "2026-04-29T22:57:08Z"
+        }
+      },
+      "claim.v2": {
+        "instanceID": "xmp:iid:431a5846-d436-4618-81d4-086ff26f7759",
+        "signature": "self#jumbf=/c2pa/urn:c2pa:6ce833fe-191a-4c45-bd2f-b2e16424a252/c2pa.signature",
+        "claim_generator_info": {
+          "name": "Encypher Enterprise API",
+          "version": "2.0",
+          "specVersion": "2.2"
+        },
+        "alg": "sha256",
+        "dc:title": "C2PA Conformance Test -- JXL",
+        "created_assertions": [
+          {
+            "url": "self#jumbf=c2pa.assertions/c2pa.actions.v2",
+            "hash": ""
+          },
+          {
+            "url": "self#jumbf=c2pa.assertions/c2pa.hash.data",
+            "hash": ""
+          },
+          {
+            "url": "self#jumbf=c2pa.assertions/com.encypher.provenance",
+            "hash": ""
+          }
+        ],
+        "gathered_assertions": []
+      },
+      "signature": {
+        "algorithm": "es256",
+        "certificateInfo": {
+          "serialNumber": "19c7de4c62898b7febbd6591661251f44fb47a85",
+          "issuer": {
+            "O": "Encypher Corporation",
+            "CN": "Encypher Corporation Test Intermediate CA"
+          },
+          "subject": {
+            "O": "Encypher Corporation",
+            "CN": "Encypher Conformance Test Cert"
+          },
+          "validity": {
+            "notBefore": "2026-04-29T22:57:09+00:00",
+            "notAfter": ""
+          }
+        },
+        "timeStampInfo": {
+          "timestamp": "2026-04-29T22:57:09+00:00"
+        }
+      },
+      "validationResults": {
+        "success": [
+          {
+            "code": "claimSignature.validated",
+            "url": "self#jumbf=/c2pa/urn:c2pa:6ce833fe-191a-4c45-bd2f-b2e16424a252/c2pa.signature",
+            "explanation": "COSE_Sign1 signature valid"
+          },
+          {
+            "code": "timeStamp.validated",
+            "url": "self#jumbf=/c2pa/urn:c2pa:6ce833fe-191a-4c45-bd2f-b2e16424a252/c2pa.signature",
+            "explanation": "timestamp message digest matched"
+          },
+          {
+            "code": "assertion.dataHash.match",
+            "url": "self#jumbf=/c2pa/urn:c2pa:6ce833fe-191a-4c45-bd2f-b2e16424a252/c2pa.signature",
+            "explanation": "data hash valid (c2pa.hash.data)"
+          }
+        ],
+        "informational": [
+          {
+            "code": "signingCredential.untrusted",
+            "url": "self#jumbf=/c2pa/urn:c2pa:6ce833fe-191a-4c45-bd2f-b2e16424a252/c2pa.signature",
+            "explanation": "signing credential untrusted"
+          }
+        ],
+        "validationTime": "2026-05-01T19:05:45.244497+00:00"
+      }
+    }
+  ],
+  "jsonGenerator": {
+    "name": "encypher-reader-to-crjson-converter",
+    "version": "1.0.0",
+    "date": "2026-05-01T19:05:45.244501+00:00"
+  }
+}

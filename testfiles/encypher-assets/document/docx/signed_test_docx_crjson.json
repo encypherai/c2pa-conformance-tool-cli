@@ -1,0 +1,129 @@
+{
+  "@context": {
+    "@vocab": "https://contentcredentials.org/crjson",
+    "extras": "https://contentcredentials.org/crjson/extras"
+  },
+  "manifests": [
+    {
+      "label": "urn:c2pa:8caf5475-e18d-44c6-ba80-66cdf3ec2b6b",
+      "assertions": {
+        "c2pa.actions.v2": {
+          "actions": [
+            {
+              "action": "c2pa.created",
+              "when": "2026-04-29T22:57:16Z",
+              "softwareAgent": {
+                "name": "Encypher Enterprise API",
+                "version": "2.0"
+              },
+              "digitalSourceType": "http://cv.iptc.org/newscodes/digitalsourcetype/algorithmicMedia"
+            }
+          ]
+        },
+        "c2pa.hash.collection.data": {
+          "uris": [
+            {
+              "uri": "[Content_Types].xml",
+              "hash": "0ad5c91b03c41ea2327a8f612641b63603f0da720e824bd76f79ec4e153a1071"
+            },
+            {
+              "uri": "_rels/.rels",
+              "hash": "6dce3e54d6edcef441396201ef88d4df2f81235fa3ae194af5f1b2f01aa39812"
+            },
+            {
+              "uri": "word/document.xml",
+              "hash": "52293c7d0135a31098d7e7724fbeb8661c90bf460d54f5dfb8ddf2c06d1603db"
+            }
+          ],
+          "alg": "sha256",
+          "zip_central_directory_hash": "c1d5f2a449431e8473e9d797c557482e6ca5fd7f3912ef4f933f6f035982ca5b"
+        },
+        "com.encypher.provenance": {
+          "organization_id": "encypher-conformance",
+          "document_id": "conformance-docx",
+          "document_asset_id": "ff371861-c43b-4db2-a60c-eae9ee557198",
+          "signed_at": "2026-04-29T22:57:16Z"
+        }
+      },
+      "claim.v2": {
+        "instanceID": "xmp:iid:d093d061-19ec-4178-9b4f-f19445e1e275",
+        "signature": "self#jumbf=/c2pa/urn:c2pa:8caf5475-e18d-44c6-ba80-66cdf3ec2b6b/c2pa.signature",
+        "claim_generator_info": {
+          "name": "Encypher Enterprise API",
+          "version": "2.0",
+          "specVersion": "2.2"
+        },
+        "alg": "sha256",
+        "dc:title": "C2PA Conformance Test -- DOCX",
+        "created_assertions": [
+          {
+            "url": "self#jumbf=c2pa.assertions/c2pa.actions.v2",
+            "hash": ""
+          },
+          {
+            "url": "self#jumbf=c2pa.assertions/c2pa.hash.collection.data",
+            "hash": ""
+          },
+          {
+            "url": "self#jumbf=c2pa.assertions/com.encypher.provenance",
+            "hash": ""
+          }
+        ],
+        "gathered_assertions": []
+      },
+      "signature": {
+        "algorithm": "es256",
+        "certificateInfo": {
+          "serialNumber": "19c7de4c62898b7febbd6591661251f44fb47a85",
+          "issuer": {
+            "O": "Encypher Corporation",
+            "CN": "Encypher Corporation Test Intermediate CA"
+          },
+          "subject": {
+            "O": "Encypher Corporation",
+            "CN": "Encypher Conformance Test Cert"
+          },
+          "validity": {
+            "notBefore": "2026-04-29T22:57:16+00:00",
+            "notAfter": ""
+          }
+        },
+        "timeStampInfo": {
+          "timestamp": "2026-04-29T22:57:16+00:00"
+        }
+      },
+      "validationResults": {
+        "success": [
+          {
+            "code": "claimSignature.validated",
+            "url": "self#jumbf=/c2pa/urn:c2pa:8caf5475-e18d-44c6-ba80-66cdf3ec2b6b/c2pa.signature",
+            "explanation": "COSE_Sign1 signature valid"
+          },
+          {
+            "code": "timeStamp.validated",
+            "url": "self#jumbf=/c2pa/urn:c2pa:8caf5475-e18d-44c6-ba80-66cdf3ec2b6b/c2pa.signature",
+            "explanation": "timestamp message digest matched"
+          },
+          {
+            "code": "assertion.dataHash.match",
+            "url": "self#jumbf=/c2pa/urn:c2pa:8caf5475-e18d-44c6-ba80-66cdf3ec2b6b/c2pa.signature",
+            "explanation": "data hash valid (c2pa.hash.collection.data)"
+          }
+        ],
+        "informational": [
+          {
+            "code": "signingCredential.untrusted",
+            "url": "self#jumbf=/c2pa/urn:c2pa:8caf5475-e18d-44c6-ba80-66cdf3ec2b6b/c2pa.signature",
+            "explanation": "signing credential untrusted"
+          }
+        ],
+        "validationTime": "2026-05-01T19:05:45.241347+00:00"
+      }
+    }
+  ],
+  "jsonGenerator": {
+    "name": "encypher-reader-to-crjson-converter",
+    "version": "1.0.0",
+    "date": "2026-05-01T19:05:45.241351+00:00"
+  }
+}
