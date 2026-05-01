@@ -33,6 +33,12 @@ fn cli_with_input_and_format(
         settings: None,
         strict: false,
         verbose: 0,
+        rubric: None,
+        rubric_dir: None,
+        rubric_mode: RubricMode::Conformance,
+        emit_crjson: false,
+        crjson: false,
+        rubric_strict: false,
     }
 }
 
@@ -108,6 +114,12 @@ fn full_run_writes_json_to_specified_output() {
         settings: None,
         strict: false,
         verbose: 0,
+        rubric: None,
+        rubric_dir: None,
+        rubric_mode: RubricMode::Conformance,
+        emit_crjson: false,
+        crjson: false,
+        rubric_strict: false,
     };
     let _code = c2pa_validate::run_with_cli(cli);
     assert!(out.exists(), "output file should be created");
@@ -145,6 +157,12 @@ fn multiple_assets_json_writes_one_file_per_asset_to_output_dir() {
         settings: None,
         strict: false,
         verbose: 0,
+        rubric: None,
+        rubric_dir: None,
+        rubric_mode: RubricMode::Conformance,
+        emit_crjson: false,
+        crjson: false,
+        rubric_strict: false,
     };
 
     let code = c2pa_validate::run_with_cli(cli);

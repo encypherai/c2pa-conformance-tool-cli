@@ -74,6 +74,44 @@ pub struct Cli {
 
     #[arg(short, long, action = clap::ArgAction::Count)]
     pub verbose: u8,
+
+    // ---- Rubric evaluation flags ----
+    #[arg(
+        long,
+        value_name = "FILE",
+        help = "Path to a rubric YAML file to evaluate against crJSON"
+    )]
+    pub rubric: Option<PathBuf>,
+
+    #[arg(
+        long,
+        value_name = "DIR",
+        help = "Directory of rubric YAML files; evaluates all against each input"
+    )]
+    pub rubric_dir: Option<PathBuf>,
+
+    #[arg(
+        long,
+        value_enum,
+        default_value_t = RubricMode::Conformance,
+        help = "Rubric evaluation mode: conformance (whole-crJSON) or signals (per-manifest)"
+    )]
+    pub rubric_mode: RubricMode,
+
+    #[arg(
+        long,
+        help = "Extract crJSON from binary assets and write to output without rubric evaluation"
+    )]
+    pub emit_crjson: bool,
+
+    #[arg(
+        long,
+        help = "Treat inputs as pre-existing crJSON files for rubric evaluation (skips c2pa-rs reading)"
+    )]
+    pub crjson: bool,
+
+    #[arg(long, help = "Fail rubric evaluation if any trait in the rubric fails")]
+    pub rubric_strict: bool,
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, ValueEnum)]
@@ -82,6 +120,14 @@ pub enum OutputFormat {
     Yaml,
     Markdown,
     Html,
+}
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq, ValueEnum)]
+pub enum RubricMode {
+    /// Evaluate rubric against the whole crJSON document (conformance checks)
+    Conformance,
+    /// Evaluate rubric per-manifest for signal detection
+    Signals,
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, ValueEnum)]

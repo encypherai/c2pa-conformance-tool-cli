@@ -98,12 +98,16 @@ fn try_run_with_cli(cli: Cli) -> Result<ExitCode> {
             }
             let rendered_crjson =
                 render_report(&report, cli.format, false).context("failed to render crJSON")?;
-            let rendered_profile =
-                render_report(&report, cli.format, true).context("failed to render profile report")?;
+            let rendered_profile = render_report(&report, cli.format, true)
+                .context("failed to render profile report")?;
             fs::write(&crjson_path, rendered_crjson)
                 .with_context(|| format!("failed to write crJSON to {}", crjson_path.display()))?;
-            fs::write(&report_path, rendered_profile)
-                .with_context(|| format!("failed to write profile report to {}", report_path.display()))?;
+            fs::write(&report_path, rendered_profile).with_context(|| {
+                format!(
+                    "failed to write profile report to {}",
+                    report_path.display()
+                )
+            })?;
         } else {
             let rendered = render_report(&report, cli.format, false)?;
             let path = match cli.output.as_ref() {

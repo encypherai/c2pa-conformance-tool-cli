@@ -22,12 +22,14 @@ use c2pa::{
     Context as C2paContext, Manifest, Reader,
 };
 use glob::glob;
-use profile_evaluator_rs::{evaluate, load_profile, CompiledProfile};
+use profile_evaluator_rs::{
+    evaluate, evaluate_rubric_conformance, evaluate_rubric_signals, load_profile, CompiledProfile,
+};
 use serde_json::Value;
 use tracing::debug;
 
 use crate::{
-    cli::{Cli, TrustMode},
+    cli::{Cli, RubricMode, TrustMode},
     report::{
         AssertionRecord, AssetReport, CrJsonReport, CrJsonValidationReport, IngredientRecord,
         InputDescriptor, InputType, ManifestRecord, ReportItem, SdkMetadata, SignatureRecord,
@@ -44,6 +46,7 @@ const DEFAULT_ITL_URL: &str =
 pub struct Validator {
     cli: Cli,
     compiled_profile: Option<CompiledProfile>,
+    rubric_profiles: Vec<(String, CompiledProfile)>,
 }
 
 #[derive(Debug, Clone)]
@@ -66,9 +69,13 @@ impl Validator {
                     .with_context(|| format!("failed to load profile {}", path.display()))
             })
             .transpose()?;
+
+        let rubric_profiles = load_rubric_profiles(&cli)?;
+
         Ok(Self {
             cli,
             compiled_profile,
+            rubric_profiles,
         })
     }
 
@@ -140,6 +147,11 @@ impl Validator {
     }
 
     fn validate_input(&self, path: &Path) -> Result<ReportItem> {
+        // --crjson flag forces all inputs to be treated as crJSON.
+        if self.cli.crjson {
+            return self.validate_crjson(path);
+        }
+
         match detect_input_type(path)? {
             InputType::CrJson => self.validate_crjson(path),
             InputType::Asset | InputType::SidecarManifest => {
@@ -149,15 +161,26 @@ impl Validator {
     }
 
     fn validate_crjson(&self, path: &Path) -> Result<ReportItem> {
-        if self.cli.profile.is_some() {
-            bail!(
-                "--profile can only be used with media assets or .c2pa sidecar manifests, not crJSON inputs"
-            );
-        }
         let data = fs::read_to_string(path)
             .with_context(|| format!("failed to read {}", path.display()))?;
         let value: Value = serde_json::from_str(&data)
             .with_context(|| format!("failed to parse {}", path.display()))?;
+
+        // If rubric evaluation is requested on crJSON input, run it.
+        if !self.rubric_profiles.is_empty() {
+            return self.evaluate_rubrics_on_crjson(path, &value);
+        }
+
+        // If a profile is requested on crJSON, evaluate it.
+        if self.compiled_profile.is_some() {
+            let profile_result = self.evaluate_profile(&value)?;
+            return Ok(ReportItem::CrJsonValidation(CrJsonValidationReport {
+                input: input_descriptor(path, InputType::CrJson)?,
+                valid: true,
+                messages: vec!["profile evaluated against crJSON".to_string()],
+                rubric_results: vec![profile_result],
+            }));
+        }
 
         let mut messages = Vec::new();
         let mut valid = true;
@@ -189,6 +212,47 @@ impl Validator {
             input: input_descriptor(path, InputType::CrJson)?,
             valid,
             messages,
+            rubric_results: Vec::new(),
+        }))
+    }
+
+    fn evaluate_rubrics_on_crjson(&self, path: &Path, crjson: &Value) -> Result<ReportItem> {
+        // For crJSON inputs that wrap results (tool output format), extract
+        // the inner crJSON from the first result's reader_json. For bare
+        // crJSON (conformance golden format with manifests at top level),
+        // use the value directly.
+        let effective_crjson = if crjson.get("manifests").is_some() {
+            crjson.clone()
+        } else if let Some(results) = crjson.get("results").and_then(Value::as_array) {
+            // Tool-output format: results[].reader_json contains the crJSON.
+            results
+                .iter()
+                .find_map(|r| r.get("reader_json"))
+                .cloned()
+                .unwrap_or_else(|| crjson.clone())
+        } else {
+            crjson.clone()
+        };
+
+        let mut rubric_results = Vec::new();
+        for (name, profile) in &self.rubric_profiles {
+            let result = match self.cli.rubric_mode {
+                RubricMode::Conformance => evaluate_rubric_conformance(profile, &effective_crjson)
+                    .with_context(|| format!("rubric conformance evaluation failed for {name}"))?,
+                RubricMode::Signals => evaluate_rubric_signals(profile, &effective_crjson)
+                    .with_context(|| format!("rubric signals evaluation failed for {name}"))?,
+            };
+            rubric_results.push(result);
+        }
+
+        Ok(ReportItem::CrJsonValidation(CrJsonValidationReport {
+            input: input_descriptor(path, InputType::CrJson)?,
+            valid: true,
+            messages: vec![format!(
+                "evaluated {} rubric(s) against crJSON",
+                rubric_results.len()
+            )],
+            rubric_results,
         }))
     }
 
@@ -314,7 +378,11 @@ impl Validator {
         let mut statuses = collect_statuses(&reader);
         if statuses.is_empty() {
             if let Some(ref j) = reader_json {
-                if let Some(first) = j.get("manifests").and_then(Value::as_array).and_then(|a| a.first()) {
+                if let Some(first) = j
+                    .get("manifests")
+                    .and_then(Value::as_array)
+                    .and_then(|a| a.first())
+                {
                     statuses = statuses_from_manifest_validation_results(first);
                 }
             }
@@ -451,6 +519,44 @@ impl Validator {
             settings,
         })
     }
+}
+
+/// Loads rubric profiles from --rubric and/or --rubric-dir CLI flags.
+fn load_rubric_profiles(cli: &Cli) -> Result<Vec<(String, CompiledProfile)>> {
+    let mut profiles = Vec::new();
+
+    if let Some(path) = &cli.rubric {
+        let name = path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("rubric")
+            .to_string();
+        let profile = load_profile(path)
+            .with_context(|| format!("failed to load rubric {}", path.display()))?;
+        profiles.push((name, profile));
+    }
+
+    if let Some(dir) = &cli.rubric_dir {
+        let pattern = dir.join("*.yml");
+        let pattern_str = pattern
+            .to_str()
+            .ok_or_else(|| anyhow!("invalid rubric-dir path"))?;
+        for entry in glob::glob(pattern_str)
+            .with_context(|| format!("invalid rubric-dir pattern: {}", pattern_str))?
+        {
+            let path = entry.with_context(|| "invalid rubric glob match")?;
+            let name = path
+                .file_stem()
+                .and_then(|s| s.to_str())
+                .unwrap_or("rubric")
+                .to_string();
+            let profile = load_profile(&path)
+                .with_context(|| format!("failed to load rubric {}", path.display()))?;
+            profiles.push((name, profile));
+        }
+    }
+
+    Ok(profiles)
 }
 
 fn expand_inputs(inputs: &[String]) -> Result<Vec<PathBuf>> {
@@ -610,9 +716,19 @@ fn statuses_from_manifest_validation_results(manifest_value: &Value) -> Vec<Stat
             None => continue,
         };
         for item in items {
-            let code = item.get("code").and_then(Value::as_str).unwrap_or("").to_string();
-            let url = item.get("url").and_then(Value::as_str).map(ToOwned::to_owned);
-            let explanation = item.get("explanation").and_then(Value::as_str).map(ToOwned::to_owned);
+            let code = item
+                .get("code")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .to_string();
+            let url = item
+                .get("url")
+                .and_then(Value::as_str)
+                .map(ToOwned::to_owned);
+            let explanation = item
+                .get("explanation")
+                .and_then(Value::as_str)
+                .map(ToOwned::to_owned);
             out.push(StatusRecord {
                 code,
                 url,

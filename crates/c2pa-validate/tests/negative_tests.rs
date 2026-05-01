@@ -27,6 +27,12 @@ fn default_cli_with_inputs(inputs: Vec<String>) -> Cli {
         settings: None,
         strict: false,
         verbose: 0,
+        rubric: None,
+        rubric_dir: None,
+        rubric_mode: RubricMode::Conformance,
+        emit_crjson: false,
+        crjson: false,
+        rubric_strict: false,
     }
 }
 
@@ -103,6 +109,12 @@ fn custom_trust_mode_without_trust_list_returns_error() {
         settings: None,
         strict: false,
         verbose: 0,
+        rubric: None,
+        rubric_dir: None,
+        rubric_mode: RubricMode::Conformance,
+        emit_crjson: false,
+        crjson: false,
+        rubric_strict: false,
     };
 
     let result = Validator::new(cli);

@@ -92,6 +92,8 @@ pub struct CrJsonValidationReport {
     pub input: InputDescriptor,
     pub valid: bool,
     pub messages: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub rubric_results: Vec<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -193,9 +195,7 @@ impl CrJsonReport {
                 output.push_str("## Report Generation Info\n\n");
                 output.push_str(&format!(
                     "**Tool:** {} {}  \n**Generated:** {}\n",
-                    self.tool.name,
-                    self.tool.version,
-                    self.generated_at
+                    self.tool.name, self.tool.version, self.generated_at
                 ));
                 return output;
             }
@@ -205,7 +205,10 @@ impl CrJsonReport {
             ReportItem::Asset(report) => {
                 if profile_only {
                     output.push_str(&format!("**📁 Asset:** {}\n\n", report.input.resolved_path));
-                    output.push_str(&format!("**📄 Format:** {}\n\n", report.input.detected_format));
+                    output.push_str(&format!(
+                        "**📄 Format:** {}\n\n",
+                        report.input.detected_format
+                    ));
                 } else {
                     output.push_str(&format!("**Asset:** {}\n\n", report.input.resolved_path));
                     output.push_str(&format!("**Format:** {}\n\n", report.input.detected_format));
@@ -227,13 +230,17 @@ impl CrJsonReport {
                     }
                 } else {
                     output.push_str("## Validation & Trust\n\n");
-                    output.push_str(&format!("- **Trust Status:** `{}`\n", render_state(report.validation_state)));
+                    output.push_str(&format!(
+                        "- **Trust Status:** `{}`\n",
+                        render_state(report.validation_state)
+                    ));
                     if !report.trust.notes.is_empty() {
                         for note in &report.trust.notes {
                             output.push_str(&format!("- **Note:** {}\n", note));
                         }
                     }
-                    let (claim_sig, signing_cert, timestamp) = partition_validation_statuses(&report.statuses);
+                    let (claim_sig, signing_cert, timestamp) =
+                        partition_validation_statuses(&report.statuses);
                     if !claim_sig.is_empty() {
                         output.push_str("- **Claim signature:** ");
                         output.push_str(&format_status_list(claim_sig));
@@ -363,9 +370,7 @@ impl CrJsonReport {
         output.push_str("## Report Generation Info\n\n");
         output.push_str(&format!(
             "**Tool:** {} {}  \n**Generated:** {}\n",
-            self.tool.name,
-            self.tool.version,
-            self.generated_at
+            self.tool.name, self.tool.version, self.generated_at
         ));
 
         output
@@ -450,14 +455,18 @@ fn format_input_type(t: InputType) -> &'static str {
 }
 
 /// Partitions statuses into claim signature, signing certificate, and timestamp (C2PA validation codes).
-fn partition_validation_statuses(statuses: &[StatusRecord]) -> (Vec<&StatusRecord>, Vec<&StatusRecord>, Vec<&StatusRecord>) {
+fn partition_validation_statuses(
+    statuses: &[StatusRecord],
+) -> (Vec<&StatusRecord>, Vec<&StatusRecord>, Vec<&StatusRecord>) {
     let mut claim_sig = Vec::new();
     let mut signing_cert = Vec::new();
     let mut timestamp = Vec::new();
     for s in statuses {
         if s.code.starts_with("claimSignature.") {
             claim_sig.push(s);
-        } else if s.code.starts_with("signingCredential.") || s.code.starts_with("signingCertificate.") {
+        } else if s.code.starts_with("signingCredential.")
+            || s.code.starts_with("signingCertificate.")
+        {
             signing_cert.push(s);
         } else if s.code.starts_with("timeStamp.") {
             timestamp.push(s);
@@ -555,13 +564,18 @@ fn render_profile_details_md(eval: &serde_json::Value) -> String {
                 ));
             }
             for item in items {
-                if item.get("title").is_some() && item.get("report_text").is_some() && item.get("value").is_none() {
+                if item.get("title").is_some()
+                    && item.get("report_text").is_some()
+                    && item.get("value").is_none()
+                {
                     if let Some(t) = item.get("report_text").and_then(serde_json::Value::as_str) {
                         out.push_str(&format!("{}\n\n", t));
                     }
                     continue;
                 }
-                if let Some(report_text) = item.get("report_text").and_then(serde_json::Value::as_str) {
+                if let Some(report_text) =
+                    item.get("report_text").and_then(serde_json::Value::as_str)
+                {
                     let value_str = item.get("value").map(|v| match v {
                         serde_json::Value::Bool(b) => format!("{}", b),
                         serde_json::Value::Number(n) => n.to_string(),
@@ -569,7 +583,10 @@ fn render_profile_details_md(eval: &serde_json::Value) -> String {
                         _ => format!("{}", v),
                     });
                     if let Some(v) = value_str {
-                        let id = item.get("id").and_then(serde_json::Value::as_str).unwrap_or("");
+                        let id = item
+                            .get("id")
+                            .and_then(serde_json::Value::as_str)
+                            .unwrap_or("");
                         let row_emoji = match item.get("value") {
                             Some(serde_json::Value::Bool(true)) => "✅ ",
                             Some(serde_json::Value::Bool(false)) => "❌ ",
@@ -637,14 +654,25 @@ fn render_profile_details_html(eval: &serde_json::Value) -> String {
             }
             out.push_str("<table class=\"info-table\"><tbody>");
             for item in items {
-                if item.get("title").is_some() && item.get("report_text").is_some() && item.get("value").is_none() {
+                if item.get("title").is_some()
+                    && item.get("report_text").is_some()
+                    && item.get("value").is_none()
+                {
                     if let Some(t) = item.get("report_text").and_then(serde_json::Value::as_str) {
-                        out.push_str(&format!("<tr><td colspan=\"2\">{}</td></tr>", html_escape(t)));
+                        out.push_str(&format!(
+                            "<tr><td colspan=\"2\">{}</td></tr>",
+                            html_escape(t)
+                        ));
                     }
                     continue;
                 }
-                if let Some(report_text) = item.get("report_text").and_then(serde_json::Value::as_str) {
-                    let id = item.get("id").and_then(serde_json::Value::as_str).unwrap_or("");
+                if let Some(report_text) =
+                    item.get("report_text").and_then(serde_json::Value::as_str)
+                {
+                    let id = item
+                        .get("id")
+                        .and_then(serde_json::Value::as_str)
+                        .unwrap_or("");
                     let value_cell = item.get("value").map(|v| match v {
                         serde_json::Value::Bool(b) => format!(
                             r#"<span class="row-emoji" aria-hidden="true">{}</span> <span class="badge badge-{}">{}</span>"#,
@@ -763,88 +791,106 @@ fn render_single_asset_html(report: &AssetReport, profile_only: bool) -> String 
 
         if !report.manifests.is_empty() {
             out.push_str("<h2>Manifests</h2>");
-        for (i, manifest) in report.manifests.iter().enumerate() {
-            let heading = manifest
-                .title
-                .as_deref()
-                .or(manifest.label.as_deref())
-                .unwrap_or("(unnamed)");
-            out.push_str(&format!(
+            for (i, manifest) in report.manifests.iter().enumerate() {
+                let heading = manifest
+                    .title
+                    .as_deref()
+                    .or(manifest.label.as_deref())
+                    .unwrap_or("(unnamed)");
+                out.push_str(&format!(
                 r#"<details class="manifest-details"><summary class="manifest-summary">Manifest {}: {}</summary><div class="manifest-inner">"#,
                 i + 1,
                 html_escape(heading)
             ));
 
-            out.push_str("<h4>Claim</h4><table class=\"info-table\"><tbody>");
-            if let Some(ref v) = manifest.claim_version {
-                out.push_str(&format!("<tr><th>Claim version</th><td>{}</td></tr>", html_escape(v)));
-            }
-            if let Some(ref gen) = manifest.claim_generator {
-                out.push_str(&format!("<tr><th>Claim generator</th><td>{}</td></tr>", html_escape(gen)));
-            }
-            if manifest.claim_version.is_none() && manifest.claim_generator.is_none() {
-                out.push_str("<tr><th>Claim</th><td><em>(none)</em></td></tr>");
-            }
-            out.push_str("</tbody></table>");
-
-            out.push_str("<h4>Signature Info</h4><table class=\"info-table\"><tbody>");
-            if let Some(ref sig) = manifest.signature {
-                if let Some(ref cn) = sig.common_name {
-                    out.push_str(&format!("<tr><th>Signing (CN)</th><td>{}</td></tr>", html_escape(cn)));
-                }
-                if let Some(ref issuer) = sig.issuer {
-                    out.push_str(&format!("<tr><th>Issuer</th><td>{}</td></tr>", html_escape(issuer)));
-                }
-                if let Some(ref t) = sig.time {
-                    out.push_str(&format!("<tr><th>Time</th><td>{}</td></tr>", html_escape(t)));
-                }
-            }
-            if manifest.signature.is_none() {
-                out.push_str("<tr><th>Signature</th><td><em>(none)</em></td></tr>");
-            }
-            out.push_str("</tbody></table>");
-
-            out.push_str("<h4>Assertions</h4><table class=\"info-table\"><thead><tr><th>Assertion</th></tr></thead><tbody>");
-            for a in &manifest.assertions {
-                out.push_str(&format!("<tr><td>{}</td></tr>", html_escape(&a.label)));
-            }
-            if manifest.assertions.is_empty() {
-                out.push_str("<tr><td><em>(none)</em></td></tr>");
-            }
-            out.push_str("</tbody></table>");
-
-            if !manifest.statuses.is_empty() {
-                out.push_str("<h4>Validation</h4><table class=\"status-table\"><thead><tr><th>Type</th><th>Code</th><th>Details</th></tr></thead><tbody>");
-                for status in &manifest.statuses {
-                    let (label, row_class) = match status.kind.as_str() {
-                        "success" => ("&#x2714; Success", "status-success"),           // ✓
-                        "informational" => ("&#x2139; Informational", "status-informational"), // ℹ
-                        _ => ("&#x2718; Failure", "status-failure"),                    // ✗
-                    };
-                    let explanation = status
-                        .explanation
-                        .as_deref()
-                        .map(html_escape)
-                        .unwrap_or_default();
+                out.push_str("<h4>Claim</h4><table class=\"info-table\"><tbody>");
+                if let Some(ref v) = manifest.claim_version {
                     out.push_str(&format!(
+                        "<tr><th>Claim version</th><td>{}</td></tr>",
+                        html_escape(v)
+                    ));
+                }
+                if let Some(ref gen) = manifest.claim_generator {
+                    out.push_str(&format!(
+                        "<tr><th>Claim generator</th><td>{}</td></tr>",
+                        html_escape(gen)
+                    ));
+                }
+                if manifest.claim_version.is_none() && manifest.claim_generator.is_none() {
+                    out.push_str("<tr><th>Claim</th><td><em>(none)</em></td></tr>");
+                }
+                out.push_str("</tbody></table>");
+
+                out.push_str("<h4>Signature Info</h4><table class=\"info-table\"><tbody>");
+                if let Some(ref sig) = manifest.signature {
+                    if let Some(ref cn) = sig.common_name {
+                        out.push_str(&format!(
+                            "<tr><th>Signing (CN)</th><td>{}</td></tr>",
+                            html_escape(cn)
+                        ));
+                    }
+                    if let Some(ref issuer) = sig.issuer {
+                        out.push_str(&format!(
+                            "<tr><th>Issuer</th><td>{}</td></tr>",
+                            html_escape(issuer)
+                        ));
+                    }
+                    if let Some(ref t) = sig.time {
+                        out.push_str(&format!(
+                            "<tr><th>Time</th><td>{}</td></tr>",
+                            html_escape(t)
+                        ));
+                    }
+                }
+                if manifest.signature.is_none() {
+                    out.push_str("<tr><th>Signature</th><td><em>(none)</em></td></tr>");
+                }
+                out.push_str("</tbody></table>");
+
+                out.push_str("<h4>Assertions</h4><table class=\"info-table\"><thead><tr><th>Assertion</th></tr></thead><tbody>");
+                for a in &manifest.assertions {
+                    out.push_str(&format!("<tr><td>{}</td></tr>", html_escape(&a.label)));
+                }
+                if manifest.assertions.is_empty() {
+                    out.push_str("<tr><td><em>(none)</em></td></tr>");
+                }
+                out.push_str("</tbody></table>");
+
+                if !manifest.statuses.is_empty() {
+                    out.push_str("<h4>Validation</h4><table class=\"status-table\"><thead><tr><th>Type</th><th>Code</th><th>Details</th></tr></thead><tbody>");
+                    for status in &manifest.statuses {
+                        let (label, row_class) = match status.kind.as_str() {
+                            "success" => ("&#x2714; Success", "status-success"), // ✓
+                            "informational" => ("&#x2139; Informational", "status-informational"), // ℹ
+                            _ => ("&#x2718; Failure", "status-failure"), // ✗
+                        };
+                        let explanation = status
+                            .explanation
+                            .as_deref()
+                            .map(html_escape)
+                            .unwrap_or_default();
+                        out.push_str(&format!(
                         r#"<tr class="{}"><td class="status-emoji">{}</td><td><code>{}</code></td><td>{}</td></tr>"#,
                         row_class,
                         label,
                         html_escape(&status.code),
                         explanation
                     ));
+                    }
+                    out.push_str("</tbody></table>");
                 }
-                out.push_str("</tbody></table>");
+                out.push_str("</div></details>");
             }
-            out.push_str("</div></details>");
-        }
         }
     }
 
     if !report.warnings.is_empty() {
         out.push_str("<h2>Warnings</h2><ul class=\"warnings-list\">");
         for w in &report.warnings {
-            out.push_str(&format!("<li><span class=\"status-emoji\" aria-hidden=\"true\">&#x26A0;</span> {}</li>", html_escape(w)));
+            out.push_str(&format!(
+                "<li><span class=\"status-emoji\" aria-hidden=\"true\">&#x26A0;</span> {}</li>",
+                html_escape(w)
+            ));
         }
         out.push_str("</ul>");
     }
@@ -996,6 +1042,7 @@ mod tests {
                 input: sample_input_descriptor("/path/to/file.json", InputType::CrJson),
                 valid: true,
                 messages: vec!["ok".to_string()],
+                rubric_results: Vec::new(),
             })],
         };
         let md = report.render_markdown(false);
@@ -1025,6 +1072,7 @@ mod tests {
                 input: sample_input_descriptor("/path/to/file&name.json", InputType::CrJson),
                 valid: false,
                 messages: vec![],
+                rubric_results: Vec::new(),
             })],
         };
         let html = report.render_html(false);

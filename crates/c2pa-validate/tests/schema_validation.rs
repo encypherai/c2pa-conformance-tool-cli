@@ -29,6 +29,12 @@ fn cli_with_input(input: String) -> Cli {
         settings: None,
         strict: false,
         verbose: 0,
+        rubric: None,
+        rubric_dir: None,
+        rubric_mode: RubricMode::Conformance,
+        emit_crjson: false,
+        crjson: false,
+        rubric_strict: false,
     }
 }
 
