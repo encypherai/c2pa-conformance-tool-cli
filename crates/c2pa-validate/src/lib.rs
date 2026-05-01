@@ -166,23 +166,33 @@ fn render_report(
     }
 }
 
-/// Structured output is either reader crJSON or profile evaluation: one object for a single asset, or null for none.
+/// Structured output is either reader crJSON, profile evaluation, or rubric
+/// results: one object for a single asset, or null for none.
 fn report_to_structured_value(report: &CrJsonReport, use_profile_output: bool) -> JsonValue {
     let values: Vec<JsonValue> = report
         .results
         .iter()
-        .filter_map(|r| {
-            if let ReportItem::Asset(asset) = r {
-                structured_asset_value(asset, use_profile_output)
-            } else {
-                None
-            }
+        .filter_map(|r| match r {
+            ReportItem::Asset(asset) => structured_asset_value(asset, use_profile_output),
+            ReportItem::CrJsonValidation(crjson_report) => structured_crjson_value(crjson_report),
         })
         .collect();
     match values.len() {
         0 => JsonValue::Null,
         1 => values.into_iter().next().unwrap_or(JsonValue::Null),
         _ => JsonValue::Array(values), // unused when multiple (we write per-file)
+    }
+}
+
+fn structured_crjson_value(report: &crate::report::CrJsonValidationReport) -> Option<JsonValue> {
+    if report.rubric_results.is_empty() {
+        return Some(serde_json::to_value(report).ok()?);
+    }
+    // When rubric results are present, return them directly. For a single
+    // rubric, return the result object; for multiple, return an array.
+    match report.rubric_results.len() {
+        1 => Some(report.rubric_results[0].clone()),
+        _ => Some(JsonValue::Array(report.rubric_results.clone())),
     }
 }
 

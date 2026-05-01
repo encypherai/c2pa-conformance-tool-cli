@@ -155,6 +155,14 @@ impl Validator {
         match detect_input_type(path)? {
             InputType::CrJson => self.validate_crjson(path),
             InputType::Asset | InputType::SidecarManifest => {
+                // When rubric profiles are loaded, extract crJSON from the
+                // binary asset and run rubric evaluation. Trust verification
+                // is attempted but not required: assets signed with self-signed
+                // certs (common during conformance program onboarding) will
+                // still produce valid crJSON for rubric evaluation.
+                if !self.rubric_profiles.is_empty() {
+                    return self.validate_asset_with_rubrics(path);
+                }
                 Ok(ReportItem::Asset(self.validate_asset(path)?))
             }
         }
@@ -254,6 +262,56 @@ impl Validator {
             )],
             rubric_results,
         }))
+    }
+
+    /// Reads a binary asset, extracts crJSON, and runs rubric evaluation.
+    /// Trust verification is attempted first; if all trust scenarios fail,
+    /// the asset is re-read with trust verification disabled so that rubric
+    /// evaluation can still proceed on the extracted crJSON.
+    fn validate_asset_with_rubrics(&self, path: &Path) -> Result<ReportItem> {
+        let input_type = detect_input_type(path)?;
+
+        // Try reading with normal trust scenarios first.
+        let crjson = match self.try_read_crjson(path, input_type) {
+            Ok(value) => value,
+            Err(_) => {
+                // Trust scenarios failed. Read without trust verification
+                // so we can still extract crJSON for rubric evaluation.
+                self.read_crjson_untrusted(path, input_type)
+                    .with_context(|| {
+                        format!(
+                            "failed to read {} even with trust verification disabled",
+                            path.display()
+                        )
+                    })?
+            }
+        };
+
+        self.evaluate_rubrics_on_crjson(path, &crjson)
+    }
+
+    /// Attempts to read an asset using the configured trust scenarios and
+    /// extract crJSON. Returns the crJSON value on success.
+    fn try_read_crjson(&self, path: &Path, input_type: InputType) -> Result<Value> {
+        let scenarios = self.build_trust_scenarios()?;
+        for scenario in scenarios {
+            if let Ok((_reader, Some(crjson))) =
+                self.read_asset(path, input_type, &scenario.settings)
+            {
+                return Ok(crjson);
+            }
+        }
+        bail!("all trust scenarios failed for {}", path.display())
+    }
+
+    /// Reads an asset with trust verification disabled and extracts crJSON.
+    fn read_crjson_untrusted(&self, path: &Path, input_type: InputType) -> Result<Value> {
+        let settings = self
+            .base_settings()?
+            .with_value("verify.verify_trust", false)
+            .context("failed to disable trust verification")?;
+        let (_reader, crjson) = self.read_asset(path, input_type, &settings)?;
+        crjson.ok_or_else(|| anyhow!("reader produced no crJSON for {}", path.display()))
     }
 
     fn validate_asset(&self, path: &Path) -> Result<AssetReport> {
