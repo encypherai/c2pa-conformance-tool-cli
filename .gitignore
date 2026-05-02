@@ -4,3 +4,4 @@ target/
 .cursor/rules/security-global/*
 .cursor/rules/security-lang/*
 output/*
+testfiles/c2pa-cert-schemas/test-certs/

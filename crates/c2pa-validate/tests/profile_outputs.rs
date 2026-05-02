@@ -40,6 +40,9 @@ fn cli_with_profile(
         emit_crjson: false,
         crjson: false,
         rubric_strict: false,
+        cert_profile: None,
+        cert_schema: None,
+        emit_cert_json: false,
     }
 }
 

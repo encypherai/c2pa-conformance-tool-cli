@@ -10,6 +10,7 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
+pub mod cert_profile;
 pub mod cli;
 pub mod report;
 pub mod validator;
@@ -59,6 +60,11 @@ fn try_run() -> Result<ExitCode> {
 
 fn try_run_with_cli(cli: Cli) -> Result<ExitCode> {
     init_tracing(cli.verbose)?;
+
+    // Certificate profile validation mode: --cert-profile <PEM> [--cert-schema <JSON>]
+    if let Some(cert_path) = &cli.cert_profile {
+        return run_cert_profile(cert_path, cli.cert_schema.as_deref(), cli.emit_cert_json, cli.format);
+    }
 
     let validator = Validator::new(cli.clone())?;
     let report = validator.run()?;
@@ -125,6 +131,56 @@ fn try_run_with_cli(cli: Cli) -> Result<ExitCode> {
     }
 
     Ok(report.exit_code())
+}
+
+fn run_cert_profile(
+    cert_path: &Path,
+    schema_path: Option<&Path>,
+    emit_json: bool,
+    format: OutputFormat,
+) -> Result<ExitCode> {
+    let cert_json = cert_profile::cert_to_json(cert_path)
+        .with_context(|| format!("failed to parse certificate {}", cert_path.display()))?;
+
+    if emit_json {
+        let rendered = serde_json::to_string_pretty(&cert_json)
+            .context("failed to render certificate JSON")?;
+        println!("{rendered}");
+        if schema_path.is_none() {
+            return Ok(ExitCode::SUCCESS);
+        }
+    }
+
+    let Some(schema_path) = schema_path else {
+        if !emit_json {
+            let rendered = serde_json::to_string_pretty(&cert_json)
+                .context("failed to render certificate JSON")?;
+            println!("{rendered}");
+        }
+        return Ok(ExitCode::SUCCESS);
+    };
+
+    let result = cert_profile::validate_cert_profile(cert_path, schema_path)
+        .context("cert profile validation failed")?;
+
+    match format {
+        OutputFormat::Json => {
+            let report = cert_profile::format_result_json(&result);
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&report).context("failed to render report")?
+            );
+        }
+        _ => {
+            print!("{}", cert_profile::format_result_text(&result));
+        }
+    }
+
+    if result.passed {
+        Ok(ExitCode::SUCCESS)
+    } else {
+        Ok(ExitCode::FAILURE)
+    }
 }
 
 fn init_tracing(verbose: u8) -> Result<()> {

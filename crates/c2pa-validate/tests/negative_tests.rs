@@ -33,6 +33,9 @@ fn default_cli_with_inputs(inputs: Vec<String>) -> Cli {
         emit_crjson: false,
         crjson: false,
         rubric_strict: false,
+        cert_profile: None,
+        cert_schema: None,
+        emit_cert_json: false,
     }
 }
 
@@ -115,6 +118,9 @@ fn custom_trust_mode_without_trust_list_returns_error() {
         emit_crjson: false,
         crjson: false,
         rubric_strict: false,
+        cert_profile: None,
+        cert_schema: None,
+        emit_cert_json: false,
     };
 
     let result = Validator::new(cli);

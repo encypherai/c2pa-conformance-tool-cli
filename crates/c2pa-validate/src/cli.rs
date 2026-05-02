@@ -18,13 +18,13 @@ use clap::{Parser, ValueEnum};
 #[command(
     author,
     version,
-    about = "Validate C2PA assets, sidecar manifests, and crJSON reports",
+    about = "Validate C2PA assets, sidecar manifests, crJSON reports, and certificate profiles",
     arg_required_else_help = true
 )]
 pub struct Cli {
     #[arg(
         value_name = "INPUT",
-        help = "Files or glob patterns to validate. Supports media assets, .c2pa sidecars, and crJSON reports."
+        help = "Files or glob patterns to validate. Supports media assets, .c2pa sidecars, and crJSON reports. Not required when --cert-profile is used."
     )]
     pub inputs: Vec<String>,
 
@@ -112,6 +112,27 @@ pub struct Cli {
 
     #[arg(long, help = "Fail rubric evaluation if any trait in the rubric fails")]
     pub rubric_strict: bool,
+
+    // ---- Certificate profile validation flags ----
+    #[arg(
+        long,
+        value_name = "PEM_OR_DER",
+        help = "Validate a certificate against a C2PA certificate profile JSON schema"
+    )]
+    pub cert_profile: Option<PathBuf>,
+
+    #[arg(
+        long,
+        value_name = "SCHEMA_FILE",
+        help = "Path to the C2PA certificate profile JSON schema to validate against"
+    )]
+    pub cert_schema: Option<PathBuf>,
+
+    #[arg(
+        long,
+        help = "Emit the certificate's JSON representation to stdout (for debugging)"
+    )]
+    pub emit_cert_json: bool,
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, ValueEnum)]

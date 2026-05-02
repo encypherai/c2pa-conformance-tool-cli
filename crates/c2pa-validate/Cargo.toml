@@ -29,5 +29,10 @@ tracing-subscriber.workspace = true
 c2pa = { path = "../../vendor/c2pa-rs/sdk", features = ["file_io", "pdf", "fetch_remote_manifests"] }
 profile_evaluator_rs = { path = "../../vendor/profile-evaluator-rs" }
 
+x509-parser.workspace = true
+der-parser.workspace = true
+pem.workspace = true
+hex.workspace = true
+jsonschema.workspace = true
+
 [dev-dependencies]
-jsonschema = { workspace = true }

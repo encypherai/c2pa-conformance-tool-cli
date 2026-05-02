@@ -115,6 +115,14 @@ c2pa-validate [OPTIONS] [INPUT]...
 | `-crjson` | Treat inputs as pre-existing crJSON files |
 | `-emit-crjson` | Extract crJSON from binary assets and write to output |
 
+### Certificate profile validation
+
+| Option | Description |
+|-|-|
+| `-cert-profile PEM_OR_DER` | Validate a certificate against a C2PA profile schema |
+| `-cert-schema SCHEMA_FILE` | C2PA certificate profile JSON schema to validate against |
+| `-emit-cert-json` | Emit the certificate's JSON representation to stdout |
+
 ### Profile options
 
 | Option | Description |
@@ -171,6 +179,73 @@ Signals mode produces per-manifest context including:
 - `localInceptions` - Detected inception signals (capture, GenAI, composite, unknown provenance)
 - `localTransformations` - Detected transformation signals (editorial AI, non-editorial edits)
 
+## Certificate profile validation
+
+The tool validates X.509 certificates against the C2PA conformance program's certificate profile JSON schemas. This verifies that CA-issued certificates conform to the structural requirements for root CAs, issuing CAs, claim signing leaves, and OCSP responders before submitting to the conformance program.
+
+### How it works
+
+1. Parses PEM or DER certificates using `x509-parser`
+2. Serializes the certificate to the JSON format expected by the C2PA profile schemas, including `_pyasn1_decoded` fields for custom C2PA extensions (assurance level, CPL record ID)
+3. Validates the JSON against the schema using Draft 2020-12 JSON Schema validation
+
+### Supported certificate profiles
+
+| Schema | Validates |
+|-|-|
+| `rootCA.cert.schema.json` | Root CA (self-signed, keyCertSign + cRLSign) |
+| `claimSigningIssuingCA.cert.schema.json` | Issuing CA (pathlen:0, keyCertSign + cRLSign) |
+| `claimSigningLeaf.al1.cert.schema.json` | Claim signing leaf AL1 (digitalSignature + contentCommitment, c2pa-kp-claimSigning EKU, assurance level, CPL record) |
+| `ocspResponderLeaf.cert.schema.json` | OCSP responder (id-kp-OCSPSigning, OCSP No Check) |
+
+Schemas are in `testfiles/c2pa-cert-schemas/` and originate from the [C2PA conformance program](https://github.com/c2pa-org/conformance).
+
+### Usage
+
+Validate a claim signing leaf certificate:
+
+```bash
+c2pa-validate -cert-profile leaf.pem -cert-schema testfiles/c2pa-cert-schemas/claimSigningLeaf.al1.cert.schema.json
+```
+
+Validate an entire CA hierarchy:
+
+```bash
+c2pa-validate -cert-profile root.pem -cert-schema testfiles/c2pa-cert-schemas/rootCA.cert.schema.json
+c2pa-validate -cert-profile issuing.pem -cert-schema testfiles/c2pa-cert-schemas/claimSigningIssuingCA.cert.schema.json
+c2pa-validate -cert-profile leaf.pem -cert-schema testfiles/c2pa-cert-schemas/claimSigningLeaf.al1.cert.schema.json
+c2pa-validate -cert-profile ocsp.pem -cert-schema testfiles/c2pa-cert-schemas/ocspResponderLeaf.cert.schema.json
+```
+
+Inspect the certificate JSON without schema validation:
+
+```bash
+c2pa-validate -cert-profile leaf.pem -emit-cert-json
+```
+
+JSON output for CI integration:
+
+```bash
+c2pa-validate -cert-profile leaf.pem -cert-schema schema.json -f json
+```
+
+The exit code is 0 on pass, 1 on schema validation failure.
+
+### Testing your own CA
+
+To validate certificates from your CA against C2PA profiles:
+
+1. Export each certificate in the chain as PEM (root, issuing CA, leaf, OCSP responder)
+2. Run each against the corresponding schema
+3. Fix any reported errors (the schema error paths point to the exact field)
+4. Re-run until all four pass
+
+The test suite includes positive and negative validation tests. Generate your own test certificates, place them in the test-certs directory, and run:
+
+```bash
+cargo test -release -test cert_profile_validation
+```
+
 ## Test assets
 
 The `testfiles/encypher-assets/` directory contains 29 signed test assets across all C2PA-supported media formats, each with a companion Reader JSON file. For 7 formats where c2pa-rs lacks native codec support (FLAC, DOCX, EPUB, ODT, OXPS, OTF, JXL), pre-converted crJSON files are included for rubric evaluation via `-crjson` mode.
@@ -187,6 +262,7 @@ c2pa-conformance-tool-cli/
     json-formula-rs/        # JMESPath-like expression evaluator
   testfiles/
     rubrics/                # Rubric YAML files and golden fixtures
+    c2pa-cert-schemas/      # C2PA certificate profile JSON schemas
     encypher-assets/        # 29 signed test assets across all formats
     profiles/               # Legacy profile YAML files
     samples/                # Upstream sample assets
@@ -200,9 +276,10 @@ This fork adds the following to [contentauth/c2pa-conformance-tool-cli](https://
 - **crJSON extraction** - `-emit-crjson` to extract crJSON from binary assets; `-crjson` to evaluate pre-existing crJSON files
 - **Signals analysis** - Per-manifest signal detection (inception and transformation signals) with ingredient resolution across manifest chains
 - **Untrusted asset support** - Automatic fallback to `verify_trust: false` when trust verification fails, enabling rubric evaluation on assets signed with certificates not yet in a trust list
+- **Certificate profile validation** - `-cert-profile`, `-cert-schema`, `-emit-cert-json` flags for validating X.509 certificates against C2PA certificate profile JSON schemas (root CA, issuing CA, claim signing leaf, OCSP responder)
 - **Security patches** - Bumped `rustls-webpki` (3 CVEs), `rustls`, and `rand` to patched versions
 - **29 test assets** - Signed conformance test assets across all supported C2PA media formats
-- **110+ tests** - Golden fixture tests for conformance and signals rubrics, integration tests for all CLI modes
+- **120+ tests** - Golden fixture tests for conformance and signals rubrics, cert profile validation, integration tests for all CLI modes
 
 ## License
 

@@ -39,6 +39,9 @@ fn cli_with_input_and_format(
         emit_crjson: false,
         crjson: false,
         rubric_strict: false,
+        cert_profile: None,
+        cert_schema: None,
+        emit_cert_json: false,
     }
 }
 
@@ -120,6 +123,9 @@ fn full_run_writes_json_to_specified_output() {
         emit_crjson: false,
         crjson: false,
         rubric_strict: false,
+        cert_profile: None,
+        cert_schema: None,
+        emit_cert_json: false,
     };
     let _code = c2pa_validate::run_with_cli(cli);
     assert!(out.exists(), "output file should be created");
@@ -163,6 +169,9 @@ fn multiple_assets_json_writes_one_file_per_asset_to_output_dir() {
         emit_crjson: false,
         crjson: false,
         rubric_strict: false,
+        cert_profile: None,
+        cert_schema: None,
+        emit_cert_json: false,
     };
 
     let code = c2pa_validate::run_with_cli(cli);

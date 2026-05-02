@@ -6,7 +6,7 @@ exclude = ["vendor/c2pa-rs"]
 [workspace.package]
 edition = "2021"
 license = "Apache-2.0"
-version = "0.2.0"
+version = "0.4.0"
 
 [workspace.dependencies]
 anyhow = "1.0.100"
@@ -20,3 +20,7 @@ thiserror = "2.0.17"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.20", features = ["env-filter", "fmt"] }
 jsonschema = { version = "0.24", features = ["draft202012"] }
+x509-parser = "0.18"
+der-parser = "10.0"
+pem = "3"
+hex = "0.4"
