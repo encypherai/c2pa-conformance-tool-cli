@@ -46,7 +46,7 @@ The binary is at `target/release/c2pa-validate`.
 cargo test -release - -include-ignored
 ```
 
-This runs 110+ tests including golden fixture tests for conformance and signals rubrics.
+This runs 100+ tests including golden fixture tests for conformance and signals rubrics.
 
 ## Quick start
 
@@ -141,9 +141,11 @@ When rubric evaluation is requested and all trust scenarios fail (e.g., self-sig
 
 Rubrics are composable YAML files that define boolean traits evaluated against crJSON. Each trait has:
 
-- A `formula`: a [JMESPath-like expression](https://jmespath.org/) over the crJSON document
+- An `expression`: a [json-formula](https://github.com/niclasberg/json-formula) expression over the crJSON document
 - A `reportText`: human-readable description when the trait passes
 - An optional `failText`: description when the trait fails
+
+Rubric expressions support named expressions with positional parameters (`$arg0`, `$arg1`, ...) and automatic normalization of bare json-formula keywords (`true`/`false`/`null` to `true()`/`false()`/`null()`).
 
 ### Included rubrics
 
@@ -259,7 +261,7 @@ c2pa-conformance-tool-cli/
   vendor/
     c2pa-rs/                # Vendored C2PA SDK (c2pa v0.78.0)
     profile-evaluator-rs/   # Rubric + profile evaluation engine
-    json-formula-rs/        # JMESPath-like expression evaluator
+    json-formula-rs/        # json-formula expression evaluator (upstream-compatible)
   testfiles/
     rubrics/                # Rubric YAML files and golden fixtures
     c2pa-cert-schemas/      # C2PA certificate profile JSON schemas
@@ -277,9 +279,10 @@ This fork adds the following to [contentauth/c2pa-conformance-tool-cli](https://
 - **Signals analysis** - Per-manifest signal detection (inception and transformation signals) with ingredient resolution across manifest chains
 - **Untrusted asset support** - Automatic fallback to `verify_trust: false` when trust verification fails, enabling rubric evaluation on assets signed with certificates not yet in a trust list
 - **Certificate profile validation** - `-cert-profile`, `-cert-schema`, `-emit-cert-json` flags for validating X.509 certificates against C2PA certificate profile JSON schemas (root CA, issuing CA, claim signing leaf, OCSP responder)
+- **Evaluator-layer expression handling** - Parameterized named expressions (`$argN`) and bare-keyword normalization handled in the evaluator, keeping json-formula-rs upstream-compatible
 - **Security patches** - Bumped `rustls-webpki` (3 CVEs), `rustls`, and `rand` to patched versions
 - **29 test assets** - Signed conformance test assets across all supported C2PA media formats
-- **120+ tests** - Golden fixture tests for conformance and signals rubrics, cert profile validation, integration tests for all CLI modes
+- **100+ tests** - Golden fixture tests for conformance and signals rubrics, cert profile validation, integration tests for all CLI modes
 
 ## License
 
