@@ -35,6 +35,12 @@ variables:
   - manifest.structuredText.multipleReferences
   - manifest.structuredText.noManifest
   - manifest.structuredText.noResolutionPath
+  - manifest.text.corruptedWrapper
+  - manifest.text.multipleWrappers
+  - manifest.text.invalidMagic
+  - manifest.text.unsupportedVersion
+  - manifest.text.lengthMismatch
+  - manifest.text.emptyManifest
   - manifest.timestamp.invalid
   - manifest.timestamp.wrongParents
   - manifest.update.invalid

@@ -1,0 +1,98 @@
+{
+  "@context": {
+    "@vocab": "https://contentcredentials.org/crjson",
+    "extras": "https://contentcredentials.org/crjson/extras"
+  },
+  "manifests": [
+    {
+      "label": "urn:c2pa:4c71b63b-14e9-4cfb-a594-c1263f42348a",
+      "assertions": {
+        "c2pa.actions.v2": {
+          "actions": [
+            {
+              "action": "c2pa.created",
+              "when": "2026-05-02T00:00:00Z",
+              "softwareAgent": "encypher-conformance-test/1.0",
+              "digitalSourceType": "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia"
+            },
+            {
+              "action": "c2pa.watermarked.bound",
+              "softwareAgent": "encypher-conformance-test/1.0",
+              "description": "Text embedded with Unicode variation selectors."
+            }
+          ]
+        },
+        "com.encypher.signer": {
+          "signer_id": "conformance-test-signer"
+        },
+        "com.encypher.context": {
+          "@context": "https://c2pa.org/schemas/v2.3/c2pa.jsonld"
+        },
+        "c2pa.hash.data": {
+          "hash": "hNjRslr9/VDxfyDbpAn8fZKEzkRKemKLXO/13kr3sdU=",
+          "alg": "sha256",
+          "exclusions": [
+            {
+              "start": 103,
+              "length": 11093
+            }
+          ]
+        },
+        "c2pa.soft-binding": {
+          "alg": "encypher.unicode_variation_selector.v1",
+          "hash": "K5Jrq3hOQCtE6plBOVjokOrBduq4xLKYff8mGu6ukzk="
+        }
+      },
+      "claim.v2": {
+        "instanceID": "urn:uuid:5f907bf4-d975-470b-ac72-e07789373b0f",
+        "signature": "self#jumbf=urn:c2pa:4c71b63b-14e9-4cfb-a594-c1263f42348a/c2pa.signature",
+        "claim_generator_info": {
+          "name": "encypher-conformance-test/1.0",
+          "version": "1.0",
+          "specVersion": "2.4"
+        },
+        "alg": "sha256",
+        "created_assertions": [
+          {
+            "url": "self#jumbf=c2pa.assertions/c2pa.actions.v2",
+            "hash": "mP7jLcq2VNdizfzSfJmotughESV8vuPg/x9IlivBXLA="
+          },
+          {
+            "url": "self#jumbf=c2pa.assertions/com.encypher.signer",
+            "hash": "oFgIHfLUTzx4uW58GnhIv16qjmHeFFgLR9B7pYbybzo="
+          },
+          {
+            "url": "self#jumbf=c2pa.assertions/com.encypher.context",
+            "hash": "YCckVSEJ2Zq+4Xv3RL1b22rkDc+235Ixnviilrv8iyI="
+          },
+          {
+            "url": "self#jumbf=c2pa.assertions/c2pa.hash.data",
+            "hash": "SH2IHll9lXAwP1lCPltKXyu0SpOh/Rop18Up9YTJNFs="
+          },
+          {
+            "url": "self#jumbf=c2pa.assertions/c2pa.soft-binding",
+            "hash": "OGPfzvGYNYTPzRVXqz6DWNdSDvLp9Sy6WBQYXY8qaqw="
+          }
+        ]
+      },
+      "signature": {
+        "algorithm": "ed25519"
+      },
+      "validationResults": {
+        "success": [
+          {
+            "code": "CRJSON_EXTRACTED_FROM_TEXT"
+          }
+        ],
+        "informational": [],
+        "failure": [],
+        "validationTime": "2026-05-05T16:42:43.592531+00:00"
+      }
+    }
+  ],
+  "jsonGenerator": {
+    "name": "encypher-crjson-extractor",
+    "version": "1.0.0",
+    "date": "2026-05-05T16:42:43.592542+00:00"
+  }
+}

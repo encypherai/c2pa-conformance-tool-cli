@@ -376,6 +376,7 @@ dependencies = [
  "byteorder",
  "byteordered",
  "bytes",
+ "c2pa-text",
  "c2pa_cbor",
  "chrono",
  "config",
@@ -453,6 +454,14 @@ dependencies = [
  "x509-parser",
  "zeroize",
  "zip",
+]
+
+[[package]]
+name = "c2pa-text"
+version = "1.1.0"
+source = "git+https://github.com/encypherai/c2pa-text.git#236c5f5ebfa32968b658f5ffea3f9da0ac2c1222"
+dependencies = [
+ "unicode-normalization",
 ]
 
 [[package]]
