@@ -269,7 +269,7 @@ expressions:
     _assertionKeys()[?startsWith(@, "c2pa.") &&
       !startsWith(@, "c2pa.hash.data") &&
       !contains($allowed_assertions_v24, @) &&
-      !(contains(@, "__") && contains(startsWith(@, $allowed_assertions_v24), true)) &&
+      !(contains(@, "__") && contains(startsWith(@, $allowed_assertions_v24), `true`)) &&
       !contains($deprecated_assertion_labels, @)]
   reportText:
     'true':

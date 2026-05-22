@@ -145,7 +145,7 @@ Rubrics are composable YAML files that define boolean traits evaluated against c
 - A `reportText`: human-readable description when the trait passes
 - An optional `failText`: description when the trait fails
 
-Rubric expressions support named expressions with positional parameters (`$arg0`, `$arg1`, ...) and automatic normalization of bare json-formula keywords (`true`/`false`/`null` to `true()`/`false()`/`null()`).
+Rubric expressions support named expressions with positional parameters (`$arg0`, `$arg1`, ...) and automatic normalization of bare json-formula keywords (`true`/`false`/`null` to `true()`/`false()`/`null()`). JSON literal form (`` `true` ``, `` `null` ``) is preferred in rubric YAML and works across all three json-formula implementations (Python, Rust, JavaScript). Report text templates support `{{matches}}` substitution, which is replaced with the comma-joined expression result for `failIfMatched` statements.
 
 ### Included rubrics
 
